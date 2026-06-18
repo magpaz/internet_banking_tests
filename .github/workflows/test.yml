@@ -1,0 +1,48 @@
+@'
+name: Testes do internet banking
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar codigo
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Iniciar API Flask
+        run: |
+          nohup python app.py > api.log 2>&1 &
+          sleep 5
+
+      - name: Rodar testes pytest
+        run: python -m pytest -v --junit-xml=report.xml
+
+      - name: Rodar Schemathesis
+        run: python -m schemathesis run openapi.yaml --base-url=http://127.0.0.1:5000 --checks all --hypothesis-max-examples=100
+
+      - name: Gerar matriz de rastreabilidade
+        run: python scripts/gera_matriz.py > matriz_rastreabilidade.md
+
+      - name: Publicar evidencias
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidencia-sprint-8
+          path: |
+            report.xml
+            matriz_rastreabilidade.md
+            api.log
+'
