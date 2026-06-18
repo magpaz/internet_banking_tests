@@ -1,0 +1,63 @@
+openapi: 3.1.0
+info:
+  title: API Internet Banking
+  version: "1.0.0"
+servers:
+  - url: http://127.0.0.1:5000
+
+paths:
+  /saldo/{conta_id}:
+    get:
+      summary: Consulta saldo
+      parameters:
+        - name: conta_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Saldo encontrado
+        "404":
+          description: Conta não encontrada
+
+  /transferencia:
+    post:
+      summary: Realiza transferência
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [origem, destino, valor]
+              properties:
+                origem:
+                  type: integer
+                destino:
+                  type: integer
+                valor:
+                  type: number
+                  minimum: 0.01
+      responses:
+        "200":
+          description: Transferência realizada
+        "404":
+          description: Conta não encontrada
+        "422":
+          description: Erro de regra de negócio
+
+  /extrato/{conta_id}:
+    get:
+      summary: Consulta extrato
+      parameters:
+        - name: conta_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Extrato encontrado
+        "404":
+          description: Conta não encontrada
